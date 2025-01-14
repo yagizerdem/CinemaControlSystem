@@ -5,6 +5,7 @@ using CinemaControlSystem.Models.Entity;
 using CinemaControlSystem.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Identity.Client;
+using UUIDNext;
 
 namespace CinemaControlSystem.Services.Class
 {
@@ -24,20 +25,20 @@ namespace CinemaControlSystem.Services.Class
             {
                 AppUser newUser = new AppUser();
                 newUser.Email = dto.Email;
-                newUser.FirstName = dto.FirstName;  
+                newUser.FirstName = dto.FirstName;
                 newUser.LastName = dto.LastName;
-                newUser.UserName = dto.UserName;
+                newUser.UserName = Uuid.NewDatabaseFriendly(Database.SqlServer).ToString(); // generate unique user name
 
-                var result = await _userManager.CreateAsync(newUser ,dto.Password);
+                var result = await _userManager.CreateAsync(newUser, dto.Password);
 
 
                 if (result.Succeeded)
                 {
-                    return ServiceResponse<AppUser>.Success(newUser ,  "new user created successfully");
+                    return ServiceResponse<AppUser>.Success(newUser, "new user created successfully");
                 }
                 else
                 {
-                    List<string> errorMessages =  result.Errors.Select(x => x.Description).ToList();
+                    List<string> errorMessages = result.Errors.Select(x => x.Description).ToList();
                     throw new AppException(false, errorMessages);
                 }
 
@@ -52,10 +53,10 @@ namespace CinemaControlSystem.Services.Class
                     AppException exception = (AppException)ex;
                     if (!exception.IsCritical)
                     {
-                        return ServiceResponse<AppUser>.Fail(null,exception.Errors, exception.Message );
+                        return ServiceResponse<AppUser>.Fail(null, exception.Errors, exception.Message);
                     }
                 }
-                return ServiceResponse<AppUser>.Fail(null ,null , "internal server error");
+                return ServiceResponse<AppUser>.Fail(null, null, "internal server error");
             }
         }
 

@@ -1,4 +1,5 @@
 using CinemaControlSystem.Components;
+using CinemaControlSystem.DataAccess;
 using CinemaControlSystem.Utils;
 
 namespace CinemaControlSystem
@@ -18,6 +19,7 @@ namespace CinemaControlSystem
 
             // seed
             await Seeder.SeedRoles(app.Services);
+
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
