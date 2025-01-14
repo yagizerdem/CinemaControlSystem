@@ -1,0 +1,17 @@
+﻿.wrapper {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to right, #0000FF, #87CEEB);
+    color: white;
+    font-weight: bolder;
+}
+
+.form-group {
+    margin: 15px 0px;
+    display: flex;
+    align-content: center;
+    flex-direction: column;
+}
+small{
+    color:white !important;
+}

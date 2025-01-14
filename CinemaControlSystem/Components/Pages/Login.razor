@@ -1,0 +1,42 @@
+﻿@page "/login"
+@inject NavigationManager Navigation
+
+
+<div class="wrapper">
+    <div class="container-sm">
+        <h1>Log In</h1>
+        <hr />
+        <EditForm Model="Model" OnSubmit="OnSubmit" FormName="loginform">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email address</label>
+                <InputText @bind-Value=Model!.Email ParsingErrorMessage="Must be text value" />
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Password</label>
+                <InputText @bind-Value=Model!.Password ParsingErrorMessage="Must be text value" />
+            </div>
+            <button type="submit" class="btn btn-success">Submit</button>
+            <button class="btn btn-primary"  type="button" @onclick="goToLogIn">go to register</button>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+
+    [SupplyParameterFromForm]
+    private LogInDTO? Model { get; set; }
+
+    protected override void OnInitialized() => Model ??= new();
+
+    async Task OnSubmit()
+    {
+        Console.Write("girid");
+    }
+    void goToLogIn()
+    {
+        Navigation.NavigateTo("/register");
+    }
+
+}
