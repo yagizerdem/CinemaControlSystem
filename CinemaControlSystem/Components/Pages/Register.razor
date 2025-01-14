@@ -1,6 +1,8 @@
 ﻿@page "/"
 @page "/register"
 @inject NavigationManager Navigation
+@inject IAuthService AuthService
+@inject ToastService toastService
 
 
 <div class="wrapper">
@@ -40,7 +42,21 @@
 
     async Task OnSubmit()
     {
-        Console.Write("girid");
+        var response =  await AuthService.Register(Model!);
+        if(response.isSuccess){
+            toastService.ShowToast(response.Message, ToastLevel.Success);
+            // navigate to login 
+            ;
+        }
+        else{
+            if(response.ErrorMessages != null){
+                string errorMessages = String.Join("\n", response.ErrorMessages);
+                toastService.ShowToast(errorMessages, ToastLevel.Error);
+            }
+            else if(response.Message != null){
+                toastService.ShowToast(response.Message, ToastLevel.Error);
+            }
+        }
     }
     void goToLogIn(){
         Navigation.NavigateTo("/login");

@@ -1,14 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 
-/*
- 
-(?=.*[a-z]): At least one lowercase letter.
-(?=.*[A-Z]): At least one uppercase letter.
-(?=.*\d): At least one digit.
-.{8,}: Minimum 8 characters.
-
- */
 
 namespace CinemaControlSystem.Utils
 {
@@ -18,7 +10,7 @@ namespace CinemaControlSystem.Utils
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password)
         {
             // Define your regex pattern
-            var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$");
+            var regex = new Regex(SD.StrongPasswordRegex);
 
             if (!regex.IsMatch(password))
             {

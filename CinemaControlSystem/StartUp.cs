@@ -3,6 +3,8 @@ using CinemaControlSystem.Models.Entity;
 using CinemaControlSystem.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using CinemaControlSystem.Services.Interface;
+using CinemaControlSystem.Services.Class;
 
 namespace CinemaControlSystem
 {
@@ -32,7 +34,8 @@ namespace CinemaControlSystem
             .AddPasswordValidator<CustomPasswordValidator<AppUser>>();
 
 
-
+            services.AddTransient<IAuthService, AuthService>();
+            services.AddScoped<ToastService>();
 
 
             services.AddAuthorization();
