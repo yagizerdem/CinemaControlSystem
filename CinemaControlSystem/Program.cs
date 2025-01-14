@@ -1,18 +1,23 @@
 using CinemaControlSystem.Components;
+using CinemaControlSystem.Utils;
 
 namespace CinemaControlSystem
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddRazorComponents()
-                .AddInteractiveServerComponents();
+
+            // initilize services
+            StartUp.Configure(builder);
+
 
             var app = builder.Build();
+
+            // seed
+            await Seeder.SeedRoles(app.Services);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
