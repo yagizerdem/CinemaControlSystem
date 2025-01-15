@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Blazored.LocalStorage;
+using CinemaControlSystem.Models.Abstract;
+using MudBlazor.Services;
 
 namespace CinemaControlSystem
 {
@@ -49,6 +51,8 @@ namespace CinemaControlSystem
 
             services.AddTransient<IAuthService, AuthService>();
             services.AddScoped<ToastService>();
+            services.AddScoped<IProfileService<ClientProfile> , ProfileService<ClientProfile>>();
+            builder.Services.AddMudServices();
 
             builder.Services.AddScoped(sp => new HttpClient
             {

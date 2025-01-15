@@ -16,5 +16,8 @@
         public static string jwtaudiance = "https://localhost/";
         public static string authTokenName = "authToken";
         public static string anonimousProfileImage = "https://st2.depositphotos.com/5682790/10456/v/450/depositphotos_104564156-stock-illustration-male-user-icon.jpg";
+
+        public static string[] FilmTypes = ["Horror", "Comedy", "Action", "Drama", "Science Fiction", "Romance"];
+    
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CinemaControlSystem.Models.Entity;
+using CinemaControlSystem.Models.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,9 @@ namespace CinemaControlSystem.DataAccess
         DbSet<BossProfile> BossProfiles { get; set; }
         DbSet<Report> Reports { get; set; }
         DbSet<ClientProfile> ClientProfiles { get; set; }
+
+        DbSet<ClientOpinion> ClientOpinions { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options)
            : base(options)
         {
@@ -21,5 +25,30 @@ namespace CinemaControlSystem.DataAccess
             base.OnModelCreating(builder);
 
         }
+
+
+        public override int SaveChanges()
+        {
+            SetCreatedDates();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            SetCreatedDates();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void SetCreatedDates()
+        {
+            var entries = ChangeTracker.Entries<IEntityTimestamps>()
+                .Where(e => e.State == EntityState.Added);
+
+            foreach (var entry in entries)
+            {
+                entry.Entity.CreatedDate = DateTime.UtcNow;
+            }
+        }
+
     }
 }

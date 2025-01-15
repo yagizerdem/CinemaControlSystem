@@ -1,8 +1,148 @@
 ﻿@page "/client/opinion"
 @layout ClientLayout
+@using System.ComponentModel.DataAnnotations
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IProfileService<ClientProfile> ProfileService
+@inject NavigationManager Navigation
+@inject ToastService toastService
 
-<h3>Profile</h3>
+
+
+
+<div class="container">
+    <br />
+    <h3>set preferances</h3>
+    <hr />
+    @if(!this.loading){
+        <EditForm Model="@Model" OnSubmit="HandleSubmit">
+            <div class="form-group">
+                <label>Open Address</label>
+                <InputText @bind-Value="Model.openAddress"></InputText>
+            </div>
+
+            <div class="form-group">
+                <label>Remember LogIn</label>
+                <InputCheckbox @bind-Value="Model.rememberLogIn"></InputCheckbox>
+            </div>
+            <div class="form-group">
+                <label>Show Email</label>
+                <InputCheckbox @bind-Value="Model.showEmail"></InputCheckbox>
+            </div>
+
+            <div class="form-group">
+  @*               <MudSelect T="string" MultiSelection="true" SelectAll="true" SelectAllText="Select all movie types" HelperText="helper select"
+                           @bind-Value="selectionOp" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))">
+                    @foreach (string type in SD.FilmTypes)
+                    {
+                        <MudSelectItem T="string" Value="@type">@type</MudSelectItem>
+                    }
+                </MudSelect> *@
+            </div>
+
+
+
+            <div class="form-group">
+                <label>Select Profile Image</label>
+                <InputFile OnChange="HandleFileSelected"></InputFile>
+            </div>
+            <button type="submit" class="btn btn-success">Success</button>
+        </EditForm>
+
+
+
+    }else{
+        <Loader/>
+    }
+    <br />
+</div>
+
+
+
 
 @code {
+    private CancellationTokenSource _cts = new();
+
+    public string selectionOp = "";
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} feline{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+    }
+
+
+    private ClientProfileUpdateDTO Model = new();
+
+    private IBrowserFile selectedFile;
+    private string fileName;
+    private byte[] fileContent;
+    private bool isFileReady = false;
+    private bool loading = false;
+
+    public async void HandleSubmit()
+    {
+        var result = await this.ProfileService.UpsertClientProfile(Model);
+        if(result.isSuccess){
+            this.loading = true;
+            toastService.ShowToast(result.Message, ToastLevel.Success);
+            SetTimeOut.ExecuteAfterInterval(() =>
+            {
+                Navigation.NavigateTo("/home");
+            }, 3000);
+            StateHasChanged();
+        }
+        else{
+            toastService.ShowToast(String.Join("\n", result.ErrorMessages), ToastLevel.Error);
+        }
+    }
+    public async void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+        fileName = selectedFile.Name;
+
+        // Read the file into a byte array
+        using var stream = new MemoryStream();
+        await selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10).CopyToAsync(stream); // 10 MB limit
+        fileContent = stream.ToArray();
+
+        isFileReady = true;
+    }
+
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                loading = true;
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+                var userId = user.FindFirst("userId")?.Value;
+
+                ClientProfile clientProfile = await ProfileService.FetchProfileByUserId(userId);
+                this.Model.AppUserId = userId;
+
+                if (clientProfile != null){
+                    // related to ui beacuse of that update state 
+                    this.Model.showEmail = clientProfile.showEmail;
+                    this.Model.openAddress = clientProfile.openAddress;
+                    this.Model.preferancesCsv = clientProfile.preferancesCsv;
+                    this.Model.rememberLogIn = clientProfile.rememberLogIn;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string message = $"Error occured : {ex.Message}";
+                Console.WriteLine(message);
+            }
+            finally
+            {
+                loading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
 
 }

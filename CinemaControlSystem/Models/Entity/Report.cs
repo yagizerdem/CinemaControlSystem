@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CinemaControlSystem.Models.Interface;
+using System.ComponentModel.DataAnnotations;
 
 namespace CinemaControlSystem.Models.Entity
 {
-    public class Report
-    {
+    public class Report : IEntityTimestamps, IBaseEntity
+    { 
         [Key]
         public int Id { get; set; } 
     
@@ -14,12 +15,13 @@ namespace CinemaControlSystem.Models.Entity
         public string Body { get; set; }
         
         [Required]
-        public string AppUserId { get; set; } 
+        public int ClientProfileId { get; set; } 
         
         [Required]
-        public AppUser From { get; set; }
+        public ClientProfile From { get; set; }
 
-        public DateTime CreatedAt => DateTime.Now;
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
 
         [Required]
         public bool hasChecked { get; set; } = false;
