@@ -1,4 +1,39 @@
-﻿/*
+﻿/*********************footer****************/
+.footer_m {
+    background-color: rgba(0, 0, 0, 0.92);
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+#footer {
+    background-image: url(../img/3.jpg);
+    background-position: center;
+}
+
+.footer_1i .form-control {
+    height: 36px;
+}
+
+.footer_1i ul li a {
+    background: #28292e;
+    height: 35px;
+    width: 35px;
+}
+
+    .footer_1i ul li a i {
+        line-height: 35px;
+        font-size: 16px;
+    }
+
+#footer_b {
+    border-top: 2px solid #de1002;
+}
+
+/*********************footer_end****************/
+
+
+
+/*
 Template Name: Planet
 File: Layout CSS
 Author: TemplatesOnWeb

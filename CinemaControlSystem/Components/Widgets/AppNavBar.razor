@@ -1,0 +1,67 @@
+﻿@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand">Cinema Contorl Sytem</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+            </ul>
+            <form class="d-flex" role="search">
+                <img class="profile-img" src="@SD.anonimousProfileImage" @onclick="GoToProfile"/>
+                <button class="btn btn-outline-danger" type="button" @onclick="LogOut">log out</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<script>
+    function reloadWindow() {
+        window.location.reload();
+    }
+</script>
+
+
+@code {
+    private string? role = null;
+
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+                role = user.FindFirst(ClaimTypes.Role)?.Value; // Retrieve the `Role` claim
+            }
+            catch (Exception ex)
+            {
+                string message = $"Error occured : {ex.Message}";
+                Console.WriteLine(message);
+            };
+        }
+    }
+
+
+    public async void LogOut(){
+        await LocalStorage.RemoveItemAsync(SD.authTokenName);
+        await JSRuntime.InvokeVoidAsync("reloadWindow");
+    }
+    public void GoToProfile(){
+        switch(role){
+            case Roles.Client:
+                Navigation.NavigateTo("/client/opinion");
+                break;
+            default:
+                break;
+        }
+    }
+}

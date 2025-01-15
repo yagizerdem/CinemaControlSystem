@@ -11,27 +11,31 @@
         <h1>Register</h1>
         <hr />
         @if(!this.isLoading){
-            <EditForm Model="Model" OnSubmit="OnSubmit" FormName="registerform">
-                <div class="form-group">
-                    <label for="firstname">First Name</label>
-                    <InputText @bind-Value=Model!.FirstName ParsingErrorMessage="Must be text value" />
-                </div>
-                <div class="form-group">
-                    <label for="lastname">Last Name</label>
-                    <InputText @bind-Value=Model!.LastName ParsingErrorMessage="Must be text value" />
-                </div>
-                <div class="form-group">
-                    <label for="exampleInputEmail1">Email address</label>
-                    <InputText @bind-Value=Model!.Email ParsingErrorMessage="Must be text value" />
-                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                </div>
-                <div class="form-group">
-                    <label for="exampleInputPassword1">Password</label>
-                    <InputText @bind-Value=Model!.Password ParsingErrorMessage="Must be text value" />
-                </div>
-                <button type="submit" class="btn btn-success">Submit</button>
-                <button class="btn btn-primary" type="button" @onclick="goToLogIn">go to logIn</button>
-            </EditForm>
+           @if(!this.blockForm){
+                <EditForm Model="Model" OnSubmit="OnSubmit" FormName="registerform">
+                    <div class="form-group">
+                        <label for="firstname">First Name</label>
+                        <InputText @bind-Value=Model!.FirstName ParsingErrorMessage="Must be text value" />
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname">Last Name</label>
+                        <InputText @bind-Value=Model!.LastName ParsingErrorMessage="Must be text value" />
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Email address</label>
+                        <InputText @bind-Value=Model!.Email ParsingErrorMessage="Must be text value" />
+                        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <InputText @bind-Value=Model!.Password ParsingErrorMessage="Must be text value" />
+                    </div>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button class="btn btn-primary" type="button" @onclick="goToLogIn">go to logIn</button>
+                </EditForm>
+           }else{
+               <p>redirecting ...</p>
+           }
         }
         else{
             <CinemaControlSystem.Components.Widgets.Loader></CinemaControlSystem.Components.Widgets.Loader>
@@ -47,6 +51,8 @@
     protected override void OnInitialized() => Model ??= new();
 
     private bool isLoading = false;
+
+    private bool blockForm = false;
 
     async Task OnSubmit()
     {
@@ -86,7 +92,12 @@
                 if (user.Identity != null && user.Identity.IsAuthenticated)
                 {
                     ToastService.ShowToast("Auto log in ... ", ToastLevel.Success);
-                    Navigation.NavigateTo("/home"); // Redirect to login page
+                    blockForm = true;
+                    SetTimeOut.ExecuteAfterInterval(() =>
+                    {
+                        Navigation.NavigateTo("/home"); // Redirect to login page
+           
+                    }, 1000);
                     StateHasChanged();
                 }
             }
