@@ -38,6 +38,10 @@ namespace CinemaControlSystem
                 .AddInteractiveServerRenderMode();
             app.MapControllers(); // Map controller routes
 
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             // jwt middleware
             app.Use(async (context, next) =>
             {

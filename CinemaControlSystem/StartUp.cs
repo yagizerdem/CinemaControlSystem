@@ -60,7 +60,7 @@ namespace CinemaControlSystem
 
             // Configure JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+            .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -84,12 +84,11 @@ namespace CinemaControlSystem
             services.AddHttpContextAccessor();
 
             // Add Blazored.LocalStorage
-            builder.Services.AddBlazoredLocalStorage();
+            services.AddBlazoredLocalStorage();
 
-            services.AddAuthorizationCore();
 
             services.AddAuthorization();
-            services.AddAuthentication();
+           
 
 
             services.AddRazorPages();

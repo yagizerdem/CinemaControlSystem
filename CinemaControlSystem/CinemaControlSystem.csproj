@@ -20,6 +20,7 @@
 
 
 	<ItemGroup>
+	  <Folder Include="Components\Pages\Areas\Client\" />
 	  <Folder Include="ExtensionMethods\" />
 	</ItemGroup>
 
