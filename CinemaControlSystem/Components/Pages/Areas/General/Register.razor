@@ -3,7 +3,8 @@
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
 @inject ToastService toastService
-
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ToastService ToastService
 
 <div class="wrapper">
     <div class="container-sm">
@@ -72,4 +73,33 @@
     void goToLogIn(){
         Navigation.NavigateTo("/login");
     }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+
+                if (user.Identity != null && user.Identity.IsAuthenticated)
+                {
+                    ToastService.ShowToast("Auto log in ... ", ToastLevel.Success);
+                    Navigation.NavigateTo("/home"); // Redirect to login page
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = $"Error occured : {ex.Message}";
+                Console.WriteLine(message);
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+    }
+
 }
