@@ -29,17 +29,6 @@
                 <InputCheckbox @bind-Value="Model.showEmail"></InputCheckbox>
             </div>
 
-            <div class="form-group">
-  @*               <MudSelect T="string" MultiSelection="true" SelectAll="true" SelectAllText="Select all movie types" HelperText="helper select"
-                           @bind-Value="selectionOp" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))">
-                    @foreach (string type in SD.FilmTypes)
-                    {
-                        <MudSelectItem T="string" Value="@type">@type</MudSelectItem>
-                    }
-                </MudSelect> *@
-            </div>
-
-
 
             <div class="form-group">
                 <label>Select Profile Image</label>
@@ -60,14 +49,6 @@
 
 
 @code {
-    private CancellationTokenSource _cts = new();
-
-    public string selectionOp = "";
-
-    private string GetMultiSelectionText(List<string> selectedValues)
-    {
-        return $"{selectedValues.Count} feline{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
-    }
 
 
     private ClientProfileUpdateDTO Model = new();
@@ -143,6 +124,5 @@
             }
         }
     }
-
 
 }

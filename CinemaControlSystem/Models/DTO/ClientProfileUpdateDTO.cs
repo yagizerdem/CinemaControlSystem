@@ -1,5 +1,4 @@
-﻿using CinemaControlSystem.Converters;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace CinemaControlSystem.Models.DTO
@@ -19,7 +18,5 @@ namespace CinemaControlSystem.Models.DTO
 
         public string AppUserId { get; set; }
 
-        [TypeConverter(typeof(ListStringConverter))]
-        public HashSet<string> SelectedOptions { get; set; } = new();
     }
 }
