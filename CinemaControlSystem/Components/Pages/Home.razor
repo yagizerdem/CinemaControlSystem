@@ -1,0 +1,28 @@
+﻿@page "/home"
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity != null && user.Identity.IsAuthenticated)
+            {
+                var username = user.Identity.Name; // This retrieves the `Name` claim
+                var role = user.FindFirst(ClaimTypes.Role)?.Value; // Retrieve the `Role` claim
+                var id = user.FindFirst("userId")?.Value;
+
+            }
+            else
+            {
+            }
+
+            StateHasChanged();
+        }
+    }
+}

@@ -11,7 +11,9 @@
 
  */
         public static string StrongPasswordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$";
-    
 
+        public static string jwtissuer = "https://localhost/";
+        public static string jwtaudiance = "https://localhost/";
+        public static string authTokenName = "authToken";
     }
 }

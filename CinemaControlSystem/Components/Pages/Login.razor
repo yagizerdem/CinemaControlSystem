@@ -1,24 +1,37 @@
 ﻿@page "/login"
-@inject NavigationManager Navigation
+@page "/Account/Login"
 
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject ToastService toastService
 
 <div class="wrapper">
     <div class="container-sm">
         <h1>Log In</h1>
         <hr />
-        <EditForm Model="Model" OnSubmit="OnSubmit" FormName="loginform">
-            <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <InputText @bind-Value=Model!.Email ParsingErrorMessage="Must be text value" />
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-            </div>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <InputText @bind-Value=Model!.Password ParsingErrorMessage="Must be text value" />
-            </div>
-            <button type="submit" class="btn btn-success">Submit</button>
-            <button class="btn btn-primary"  type="button" @onclick="goToLogIn">go to register</button>
-        </EditForm>
+
+        @if (!this.isLoading) {
+            <EditForm Model="Model" OnSubmit="OnSubmit" FormName="loginform">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Email address</label>
+                    <InputText @bind-Value=Model!.Email ParsingErrorMessage="Must be text value" />
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Password</label>
+                    <InputText @bind-Value=Model!.Password ParsingErrorMessage="Must be text value" />
+                </div>
+                <button type="submit" class="btn btn-success">Submit</button>
+                <button class="btn btn-primary" type="button" @onclick="goToLogIn">go to register</button>
+            </EditForm>
+        }
+        else{
+            <CinemaControlSystem.Components.Widgets.Loader></CinemaControlSystem.Components.Widgets.Loader>
+        }
+
+
     </div>
 </div>
 
@@ -29,10 +42,38 @@
     private LogInDTO? Model { get; set; }
 
     protected override void OnInitialized() => Model ??= new();
+    private bool isLoading = false;
 
     async Task OnSubmit()
     {
-        Console.Write("girid");
+        try
+        {
+            var apiResponse = await Http.PostAsJsonAsync("api/auth/login", Model);
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                var content = await apiResponse.Content.ReadAsStringAsync();
+                ServiceResponse<string> serviceResponse = System.Text.Json.JsonSerializer.Deserialize<ServiceResponse<string>>(content);
+
+                await LocalStorage.SetItemAsync(SD.authTokenName, serviceResponse.Data);
+
+                toastService.ShowToast("user logged in successfully", ToastLevel.Success);
+                this.isLoading = true;
+                // navigate to login
+                SetTimeOut.ExecuteAfterInterval(() =>
+                {
+                    Navigation.NavigateTo("/home");
+                }, 2000);
+
+            }
+            else
+            {
+                string errorMessage = "Invalid login attempt.";
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"An error occurred: {ex.Message}";
+        }
     }
     void goToLogIn()
     {

@@ -36,6 +36,20 @@ namespace CinemaControlSystem
             app.MapStaticAssets();
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
+            app.MapControllers(); // Map controller routes
+
+            // jwt middleware
+            app.Use(async (context, next) =>
+            {
+                var token = context.Request.Cookies["AuthToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Request.Headers.Authorization = $"Bearer {token}";
+                }
+
+                await next.Invoke();
+            });
+
 
             app.Run();
         }

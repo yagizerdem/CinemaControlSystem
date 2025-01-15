@@ -1,4 +1,6 @@
-﻿using CinemaControlSystem.DataAccess;
+﻿global using Microsoft.AspNetCore.Components.Authorization;
+
+using CinemaControlSystem.DataAccess;
 using CinemaControlSystem.Models.Entity;
 using CinemaControlSystem.Utils;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using CinemaControlSystem.Services.Interface;
 using CinemaControlSystem.Services.Class;
 using CinemaControlSystem.Utils.Validators;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Blazored.LocalStorage;
 
 namespace CinemaControlSystem
 {
@@ -44,10 +50,46 @@ namespace CinemaControlSystem
             services.AddTransient<IAuthService, AuthService>();
             services.AddScoped<ToastService>();
 
+            builder.Services.AddScoped(sp => new HttpClient
+            {
+                BaseAddress = new Uri(builder.Configuration["BaseAddress"] ?? "https://localhost/")
+            });
+
+
+
+
+            // Configure JWT Authentication
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = SD.jwtissuer,
+                        ValidAudience = SD.jwtaudiance,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["jwt"]))
+                    };
+                });
+
+            // Add services to the container
+            services.AddControllers(); // Enable controllers
+            services.AddEndpointsApiExplorer();
+
+
+            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            services.AddHttpContextAccessor();
+
+            // Add Blazored.LocalStorage
+            builder.Services.AddBlazoredLocalStorage();
+
+            services.AddAuthorizationCore();
 
             services.AddAuthorization();
-            services.AddAuthentication()
-                .AddCookie();
+            services.AddAuthentication();
 
 
             services.AddRazorPages();
