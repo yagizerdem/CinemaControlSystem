@@ -8,6 +8,9 @@ namespace CinemaControlSystem.DataAccess
 {
     public class AppDbContext : IdentityDbContext<AppUser , IdentityRole , string> 
     {
+        DbSet<BossProfile> BossProfiles { get; set; }
+        DbSet<Report> Reports { get; set; }
+        DbSet<ClientProfile> ClientProfiles { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
            : base(options)
         {
