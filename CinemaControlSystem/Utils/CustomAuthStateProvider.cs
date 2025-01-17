@@ -28,6 +28,7 @@ namespace CinemaControlSystem.Utils
             return new AuthenticationState(user);
         }
 
+
         public void MarkUserAsAuthenticated(string token)
         {
             var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
