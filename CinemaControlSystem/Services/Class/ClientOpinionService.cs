@@ -83,7 +83,16 @@ namespace CinemaControlSystem.Services.Class
         {
             try
             {
-                var result = await this._dbSet.OrderBy(x => x.CreatedDate).Skip(page * limit).Take(limit).ToListAsync<ClientOpinion>();
+                var result = await this._dbSet
+            .Where(x => x.CreatedDate!= null) // Ensure non-null CreatedDate
+            .OrderBy(x => x.CreatedDate)
+            .Skip(page * limit)
+            .Take(limit)
+            .Include(x => x.ClientProfile)
+            .ThenInclude(x => x.AppUser)
+            .ToListAsync();
+
+
                 return ServiceResponse<List<ClientOpinion>>.Success(result, "data fetched successfully");
             }
             catch(Exception ex)
