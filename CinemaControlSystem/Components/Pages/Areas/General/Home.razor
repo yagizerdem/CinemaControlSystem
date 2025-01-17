@@ -4,6 +4,7 @@
 @inject ToastService toastService
 @inject HttpClient HttpClient
 @layout ClientLayout
+@inject IClientOpinionService ClientOpinionService
 
 
 <AuthorizationWrapper AllowedRole="@null">
@@ -57,12 +58,11 @@
 						<li class="nav-item">
 							<a class="nav-link active" aria-current="page" href="index.html">Home</a>
 						</li>
-
 						<li class="nav-item">
-							<a class="nav-link" href="/ticketsale">Buy Ticket</a>
+							<a class="nav-link" @onclick="NavigateToTicketSale">Buy Ticket</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="/opinion">Leave your opinion ...</a>
+							<a class="nav-link" @onclick="NavigateToOpinion">Leave your opinion ...</a>
 						</li>
 					</ul>
 				</div>
@@ -1753,6 +1753,8 @@
 
 	private Random random = new Random();
 
+	private List<ClientOpinion> ClientOpinions = new();
+
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -1767,10 +1769,23 @@
 			var data = await HttpClient.GetFromJsonAsync<Root>($"http://www.omdbapi.com/?apikey=7f9eb87a&type=movie&r=json&s={queryPrefix}&page=1");
 			if(data != null) {
 				PosterData = data!.Search.OrderBy(x => this.random.Next()).Take(3).ToList();
+				
+				
 				StateHasChanged();
 			}
 		}
 		
+	}
+
+
+	private void NavigateToOpinion()
+	{
+		Navigation.NavigateTo("/client/opinion", true);
+	}
+
+	private void NavigateToTicketSale()
+	{
+		Navigation.NavigateTo("/client/ticketsale", true);
 	}
 
 }

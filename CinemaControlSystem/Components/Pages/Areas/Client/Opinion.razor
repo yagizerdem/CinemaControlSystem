@@ -1,14 +1,96 @@
-﻿@page "/opinion"
+﻿@page "/client/opinion"
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject ToastService toastService
+@inject IClientOpinionService ClietnOpinionService
+@inject IProfileService<ClientProfile> ProfileService
 @layout ClientLayout
+@using TinyMCE.Blazor
 
+<CinemaControlSystem.Components.Widgets.ToastNotification />
 
 <AuthorizationWrapper AllowedRole="@Roles.Client">
 
-    <h3>opinion</h3>
+    @if(!loading){
+        <div class="container">
+            <textarea class="header-text-area" @bind="Model!.Header"></textarea>
+            <br />
+            <TinyMCE.Blazor.Editor @bind-Value="Model.Body" />
+            <button type="button" class="btn btn-success" @onclick="OnSubmit">Submit</button>
+            <br />
+        </div>
+
+    }else{
+        <Loader></Loader>
+    }
+
 </AuthorizationWrapper>
 
 
 
+
+
 @code {
+    private bool loading = false;
+
+    private ClientOpinionDTO? Model { get; set; }
+
+    protected override void OnInitialized() => Model ??= new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            try{
+                loading = true;
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+                var userId = user.FindFirst("userId")?.Value;
+
+                ClientProfile clientProfile = await ProfileService.FetchProfileByUserId(userId);
+                this.Model!.profileId = clientProfile.Id;
+
+            }catch(Exception ex){
+                string message = $"Error occured : {ex.Message}";
+                Console.WriteLine(message);
+
+            }finally{
+                loading = false;
+                StateHasChanged();
+            }
+
+        }
+
+    }
+
+
+
+    private async Task OnSubmit(){
+        try{
+            var result = await ClietnOpinionService.Add(Model!);
+            if(!result.isSuccess){
+                string errors = String.Join(",", result.ErrorMessages);
+                toastService.ShowToast(errors, ToastLevel.Error);
+                return;
+            }
+
+            toastService.ShowToast("comment addess successfully", ToastLevel.Success);
+            loading = true;
+            SetTimeOut.ExecuteAfterInterval(() =>
+            {
+                loading = false;
+                Navigation.NavigateTo("/home", true);
+            }, 2000);
+
+        }catch(Exception ex){
+            string message = $"Error occured : {ex.Message}";
+            Console.WriteLine(message);
+            toastService.ShowToast("error occured", ToastLevel.Error);
+        }
+        finally{
+            StateHasChanged();
+        }
+    }
 
 }

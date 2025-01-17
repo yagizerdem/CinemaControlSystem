@@ -11,5 +11,6 @@ namespace CinemaControlSystem.Services.Interface
         public Task<T>  FetchProfileByProfileId(int profileId);
 
         public Task<ServiceResponse<ClientProfile?>> UpsertClientProfile(ClientProfileUpdateDTO dto);
+    
     }
 }

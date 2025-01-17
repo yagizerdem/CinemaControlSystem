@@ -52,6 +52,8 @@ namespace CinemaControlSystem
             services.AddTransient<IAuthService, AuthService>();
             services.AddScoped<ToastService>();
             services.AddScoped<IFileService , FileService>();
+            services.AddScoped<IClientOpinionService, ClientOpinionService>();
+
             services.AddScoped<IProfileService<ClientProfile> , ProfileService<ClientProfile>>();
             builder.Services.AddMudServices();
 
