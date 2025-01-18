@@ -16,7 +16,12 @@
 
             </ul>
             <form class="d-flex" role="search">
-                <img class="profile-img" src="@profileImageUrl" @onclick="GoToProfile" />
+                @if(this.role == Roles.Client){
+                    <img class="profile-img" src="@profileImageUrl" @onclick="GoToProfile" />
+                }
+                else if(this.role == Roles.Boss){
+                       <a href="/boss/dashboard" class="boss-dashboard">dashboard</a>
+                }
                 <button class="btn btn-outline-danger" type="button" @onclick="LogOut">log out</button>
             </form>
         </div>
@@ -77,5 +82,10 @@
             default:
                 break;
         }
+    }
+
+
+    public void goToDashBoardBoss(){
+        Navigation.NavigateTo("/boss/dashboard", forceLoad: true);
     }
 }

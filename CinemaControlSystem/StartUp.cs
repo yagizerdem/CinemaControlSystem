@@ -55,6 +55,8 @@ namespace CinemaControlSystem
             services.AddScoped<IClientOpinionService, ClientOpinionService>();
 
             services.AddScoped<IProfileService<ClientProfile> , ProfileService<ClientProfile>>();
+            services.AddScoped<IProfileService<BossProfile>, ProfileService<BossProfile>>();
+
             builder.Services.AddMudServices();
 
             builder.Services.AddScoped(sp => new HttpClient

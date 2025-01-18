@@ -19,7 +19,7 @@ namespace CinemaControlSystem
 
             // seed
             await Seeder.SeedRoles(app.Services);
-
+            await Seeder.SeedBossUser(app.Services);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
