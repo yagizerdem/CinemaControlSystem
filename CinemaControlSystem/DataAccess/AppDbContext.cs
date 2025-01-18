@@ -15,6 +15,11 @@ namespace CinemaControlSystem.DataAccess
 
         DbSet<ClientOpinion> ClientOpinions { get; set; }
 
+
+        DbSet<DoorsManProfile> DoorsManProfiles { get; set; }
+
+        DbSet<DepartmentManagerProfile> DepartmentManagerProfiles { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options)
            : base(options)
         {

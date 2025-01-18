@@ -1,0 +1,22 @@
+﻿<h3>AddDoorsMan</h3>
+<EditForm  OnValidSubmit="HandleValidSubmit">
+    <InputText @bind-Value="AppUserModel.FirstName"></InputText>
+    <InputText @bind-Value="AppUserModel.LastName"></InputText>
+    <InputText @bind-Value="AppUserModel.Email"></InputText>
+</EditForm>
+
+@code {
+    public AppUser AppUserModel;
+    public AddDoorsMan DoorsManModel;
+     
+
+    protected override void OnInitialized(){
+        AppUserModel = new();
+        DoorsManModel = new();
+    }
+
+    public async Task HandleValidSubmit()
+    {
+
+    }
+}

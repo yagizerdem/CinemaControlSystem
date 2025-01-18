@@ -1,12 +1,188 @@
 ﻿@page "/boss/dashboard"
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ToastService ToastService
 
 
+<style>
+    :root {
+    --background: #36454F;
+    --navbar-width: 256px;
+    --navbar-width-min: 80px;
+    --navbar-dark-primary: #18283b;
+    --navbar-dark-secondary: #2c3e50;
+    --navbar-light-primary: #f5f6fa;
+    --navbar-light-secondary: #8392a5;
+    }
+
+    html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--background);
+    height: 100%;
+    }
+
+    .custom-container {
+    display: flex;
+    height: 100vh;
+    }
+
+    #nav-bar {
+    width: var(--navbar-width);
+    background: var(--navbar-dark-primary);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    color: var(--navbar-light-primary);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    transition: width 0.2s;
+    }
+
+    #nav-bar input[type="checkbox"] {
+    display: none;
+    }
+
+    #nav-toggle:checked ~ #nav-bar {
+    width: var(--navbar-width-min);
+    }
+
+    #nav-header {
+    width: 100%;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--navbar-dark-primary);
+    padding: 0 16px;
+    box-sizing: border-box;
+    }
+
+    #nav-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    overflow-y: auto;
+    }
+
+    .nav-button {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    color: var(--navbar-light-secondary);
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    }
+
+    .nav-button:hover {
+    background: var(--navbar-light-primary);
+    color: var(--navbar-dark-primary);
+    border-radius: 8px;
+    }
+
+    .nav-button i {
+    margin-right: 8px;
+    }
+
+    .right {
+    flex: 1;
+    color:white;
+    height: 100%;
+    padding:40px;
+    }
+</style>
 
 <AuthorizationWrapper AllowedRole="@Roles.Boss">
-    <h3>boss Dashboard</h3>
+  @if(!this.isLoading){
+        <div class="custom-container">
+            <!-- Navbar -->
+            <div id="nav-bar">
+                <input id="nav-toggle" type="checkbox" />
+                <div id="nav-header">
+                    <h4>Admin Panel</h4>
+                    <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
+                </div>
+                <div id="nav-content">
+                    <div class="nav-button" @onclick="()=>ChangeMode(Modes.AddDoorsMan)"><i class="fa-solid fa-plus"></i><span>Add DoorsMan</span></div>
+                    <div class="nav-button" @onclick="()=>ChangeMode(Modes.AddDepartmantManager)"><i class="fa-solid fa-plus"></i><span>Add Department Manager</span></div>
+                    <div class="nav-button" @onclick="()=>ChangeMode(Modes.Statistics)"><i class="fa-solid fa-chart-simple"></i><span>Statistics</span></div>
+                    <div class="nav-button" @onclick="()=>ChangeMode(Modes.Reports)"><i class="fa-solid fa-paperclip"></i><span>Reports</span></div>
+                </div>
+            </div>
+
+            <!-- Right Content -->
+            <div class="right">
+                @if (this.selectedMode == Modes.Statistics)
+                {
+                    <Statistics></Statistics>
+                }
+                else if (this.selectedMode == Modes.AddDoorsMan)
+                {
+                    <AddDoorsMan></AddDoorsMan>
+                }
+                else if (this.selectedMode == Modes.AddDepartmantManager)
+                {
+                    <AddDepartmantManager></AddDepartmantManager>
+                }
+                else if (this.selectedMode == Modes.Reports)
+                {
+                    <Reports></Reports>
+                }
+
+            </div>
+        </div>
+  }
+  else{
+      <Loader></Loader>
+  }
 </AuthorizationWrapper>
 
 
 @code {
+    public enum Modes{
+        AddDoorsMan,
+        AddDepartmantManager,
+        Statistics,
+        Reports,
+    }
+
+    private Modes selectedMode = Modes.Statistics; // initilize
+
+    public void ChangeMode(Modes mode){
+        this.selectedMode = mode;
+    }
+
+    private bool isLoading = false;
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isLoading = true;
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity != null && user.Identity.IsAuthenticated)
+            {
+                // var username = user.Identity.Name; // This retrieves the `Name` claim
+                var role = user.FindFirst(ClaimTypes.Role)?.Value; // Retrieve the `Role` claim
+                                                                   // var id = user.FindFirst("userId")?.Value
+                var id = user.FindFirst("userId")?.Value;
+                
+            }
+            else
+            {
+                ToastService.ShowToast("User is not authenticated", ToastLevel.Error);
+                Navigation.NavigateTo("/login"); // Redirect to login page
+            }
+
+            isLoading = false;
+            StateHasChanged();
+        }
+}
+
 
 }
