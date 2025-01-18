@@ -416,14 +416,15 @@
 				<div class="card card-custom" style="width: 18rem;">
 					<img class="card-img-top customimg" src="@(opinion.ClientProfile.profileImgUrl.Trim().Length > 0 ? opinion.ClientProfile.profileImgUrl : SD.anonimousProfileImage)" alt="Card image cap">
 					<div class="card-body">
-						<h5 class="card-title">@(opinion.ClientProfile.AppUser.FullName)</h5>
+						<h5 class="card-title">@(opinion.ClientProfile.AppUser.FullName)
+							<span style="font-size:14px;">@(opinion.ClientProfile.showEmail ? opinion.ClientProfile.AppUser.Email : "")</span></h5>
 						<p class="card-text card-text-custom">@(opinion.Header)</p>
 					</div>
 				</div>
 			}
 
 		</div>
-		<button type="button" class="btn btn-primary">click here to see all comments</button>
+		<button type="button" class="btn btn-primary" @onclick="goToclientOpinions">click here to see all comments</button>
 	</div>
 
 	<section id="popular" class="pt-4 pb-5 bg_grey">
@@ -1650,6 +1651,10 @@
 	private void NavigateToTicketSale()
 	{
 		Navigation.NavigateTo("/client/ticketsale", true);
+	}
+
+	private void goToclientOpinions(){
+		Navigation.NavigateTo("/clientOpinions", true);
 	}
 
 }

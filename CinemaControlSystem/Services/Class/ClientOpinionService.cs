@@ -85,7 +85,7 @@ namespace CinemaControlSystem.Services.Class
             {
                 var result = await this._dbSet
             .Where(x => x.CreatedDate!= null) // Ensure non-null CreatedDate
-            .OrderBy(x => x.CreatedDate)
+            .OrderByDescending(x => x.CreatedDate)
             .Skip(page * limit)
             .Take(limit)
             .Include(x => x.ClientProfile)
@@ -98,6 +98,47 @@ namespace CinemaControlSystem.Services.Class
             catch(Exception ex)
             {
                 return ServiceResponse<List<ClientOpinion>>.Fail(null, ["internal server error"]);
+            }
+        }
+
+        public async Task<ServiceResponse<List<ClientOpinion>>> FetchClientOpinionsByProfileId(int limit, int page , int ProfileId)
+        {
+            try
+            {
+                var result = await this._dbSet
+            .Where(x => x.CreatedDate != null) // Ensure non-null CreatedDate
+            .Where(x => x.ClientProfileId == ProfileId)
+            .OrderByDescending(x => x.CreatedDate)
+            .Skip(page * limit)
+            .Take(limit)
+            .Include(x => x.ClientProfile)
+            .ThenInclude(x => x.AppUser)
+            .ToListAsync();
+
+
+                return ServiceResponse<List<ClientOpinion>>.Success(result, "data fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<List<ClientOpinion>>.Fail(null, ["internal server error"]);
+            }
+        }
+
+        public async Task<ServiceResponse<ClientOpinion>> DeletOpinion(int id)
+        {
+            try
+            {
+                var entity = _dbSet.Find(id);
+                if (entity != null)
+                {
+                    _dbSet.Remove(entity);
+                }
+                await this._dbContext.SaveChangesAsync();
+                return ServiceResponse<ClientOpinion>.Success(entity, "opinion deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<ClientOpinion>.Fail(null, ["internal server error"]);
             }
         }
     }

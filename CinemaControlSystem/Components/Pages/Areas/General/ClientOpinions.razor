@@ -1,0 +1,100 @@
+﻿@page "/clientOpinions"
+@inject IClientOpinionService ClientOpinionService
+@inject ToastService toastService
+@using System.Text.Encodings.Web
+@using CinemaControlSystem.ExtensionMethods;
+@layout ClientLayout
+
+<CinemaControlSystem.Components.Widgets.ToastNotification/>
+
+<style>
+    .card{
+        margin:20px 0 ;
+    }
+    img{
+        width:40px;
+        height:40px;
+    }
+</style>
+
+<div class="container">
+    @foreach (ClientOpinion op in this.data)
+    {
+        <div class="card">
+            <div class="card-header">
+                @(op.Header)
+            </div>
+            <div class="card-body">
+                <blockquote class="blockquote mb-0">
+                    <p>@op.Body.AsMarkup()</p>
+                    <footer class="blockquote-footer">
+                        @(op.ClientProfile.AppUser.FullName) | @(op.ClientProfile.showEmail ? @op.ClientProfile.AppUser.Email : " ")
+                        &#9;
+                        &#9;
+                        <cite title="Source Title">
+                            @if (op.ClientProfile.profileImgUrl.Trim().Length > 0)
+                            {
+                                <img src="@op.ClientProfile.profileImgUrl" />
+                            }
+                            else
+                            {
+                                <img src="@SD.anonimousProfileImage" />
+                            }
+                        </cite></footer>
+                </blockquote>
+            </div>
+        </div>
+    }
+    @if(!isEnd){
+        <button @onclick="OnLoadMore" class="btn btn-success">Load more</button>
+    }
+</div>
+
+
+
+
+@code {
+    private int Page = 0;
+    private int Limit = 10;
+    private bool isEnd = false;
+    List<ClientOpinion> data = new();
+    protected override async void OnInitialized()
+    {
+        // override default behavioru
+        var serviceResponse = await ClientOpinionService.FetchClientOpinions(Limit , Page);
+        if (serviceResponse.isSuccess){
+            this.data = serviceResponse.Data;
+            StateHasChanged();
+        }
+    }
+
+    public async Task OnLoadMore(){
+        if(!isEnd){
+            this.Page++;
+            // fetch more here
+            var serviceResponse = await ClientOpinionService.FetchClientOpinions(Limit, Page);
+            if(serviceResponse.isSuccess){
+                this.data.AddRange(serviceResponse.Data);
+                if(serviceResponse.Data.Count() < this.Limit){
+                    this.isEnd = true;
+                    toastService.ShowToast("all comments has fetched", ToastLevel.Warning);
+                }
+
+                if(this.data.Count() > 1000){
+                    this.data = this.data.Skip(this.data.Count() - 1000).Take(1000).ToList();
+                }
+
+                StateHasChanged();
+            }
+            else{
+                string error = String.Join("\n", serviceResponse.ErrorMessages);
+                toastService.ShowToast(error, ToastLevel.Error);
+            }
+        }
+        else{
+            toastService.ShowToast("all comments has fetched", ToastLevel.Warning);
+        }
+    }
+
+
+}

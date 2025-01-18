@@ -1,0 +1,161 @@
+﻿@layout ClientLayout
+@page "/client/listopinion"
+@inject NavigationManager Navigation
+@inject ToastService toastService
+@inject IProfileService<ClientProfile> ProfileService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IClientOpinionService ClientOpinionService;
+@using CinemaControlSystem.ExtensionMethods;
+
+
+<CinemaControlSystem.Components.Widgets.ToastNotification />
+
+<style>
+    .card {
+    margin: 20px 0;
+    }
+
+    img {
+    width: 40px;
+    height: 40px;
+    }
+</style>
+
+
+@if(this.data.Count() > 0){
+    <div class="container">
+        @foreach (ClientOpinion op in this.data)
+        {
+            <div class="card">
+                <button class="btn btn-danger" @onclick="()=>Delete(op.Id)" style="width:80%;margin:5px auto;display:block;">Delete</button>
+                <div class="card-header">
+                    @(op.Header)
+                </div>
+                <div class="card-body">
+                    <blockquote class="blockquote mb-0">
+                        <p>@op.Body.AsMarkup()</p>
+                        <footer class="blockquote-footer">
+                            @(op.ClientProfile.AppUser.FullName) | @(op.ClientProfile.showEmail ? @op.ClientProfile.AppUser.Email : " ")
+                            &#9;
+                            &#9;
+                            <cite title="Source Title">
+                                @if (op.ClientProfile.profileImgUrl.Trim().Length > 0)
+                                {
+                                    <img src="@op.ClientProfile.profileImgUrl" />
+                                }
+                                else
+                                {
+                                    <img src="@SD.anonimousProfileImage" />
+                                }
+                            </cite>
+                        </footer>
+                    </blockquote>
+                </div>
+            </div>
+        }
+        @if (!isEnd)
+        {
+            <button @onclick="OnLoadMore" class="btn btn-success">Load more</button>
+        }
+    </div>
+
+}
+else{
+    <div>comments doest no exist yet ...</div>
+}
+
+
+@code {
+    private bool loading;
+    int page = 0;
+    int limit = 10;
+    List<ClientOpinion> data = new();
+    public bool isEnd = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                loading = true;
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+                var userId = user.FindFirst("userId")?.Value;
+
+                ClientProfile clientProfile = await ProfileService.FetchProfileByUserId(userId);
+
+                if (clientProfile != null)
+                {
+
+                    var result = await ClientOpinionService.FetchClientOpinionsByProfileId(limit, page, clientProfile.Id);
+
+                    if(result.isSuccess){
+                        data.AddRange(result.Data);
+                    }
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string message = $"Error occured : {ex.Message}";
+                Console.WriteLine(message);
+            }
+            finally
+            {
+                loading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+
+    public async Task OnLoadMore()
+    {
+        if (!isEnd)
+        {
+            this.page++;
+            // fetch more here
+            var serviceResponse = await ClientOpinionService.FetchClientOpinions(limit, page);
+            if (serviceResponse.isSuccess)
+            {
+                this.data.AddRange(serviceResponse.Data);
+                if (serviceResponse.Data.Count() < this.limit)
+                {
+                    this.isEnd = true;
+                    toastService.ShowToast("all comments has fetched", ToastLevel.Warning);
+                }
+
+                if (this.data.Count() > 1000)
+                {
+                    this.data = this.data.Skip(this.data.Count() - 1000).Take(1000).ToList();
+                }
+
+                StateHasChanged();
+            }
+            else
+            {
+                string error = String.Join("\n", serviceResponse.ErrorMessages);
+                toastService.ShowToast(error, ToastLevel.Error);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("all comments has fetched", ToastLevel.Warning);
+        }
+    }
+
+    public async Task Delete(int id){
+        var result = await ClientOpinionService.DeletOpinion(id);
+        if (result.isSuccess){
+            toastService.ShowToast(result.Message ?? "post deleted ...", ToastLevel.Success);
+
+            this.data = this.data.Where(x => x.Id != result.Data.Id).ToList();
+            StateHasChanged();
+        }else{
+            var error = String.Join("\n", result.ErrorMessages);
+            toastService.ShowToast(error, ToastLevel.Error);
+        }
+    }
+}

@@ -27,7 +27,6 @@
 	  <Folder Include="Components\Pages\Areas\It\" />
 	  <Folder Include="Components\Pages\Areas\DepartmentManager\" />
 	  <Folder Include="Components\Pages\Areas\Doorsman\" />
-	  <Folder Include="ExtensionMethods\" />
 	</ItemGroup>
 
 </Project>
